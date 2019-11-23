@@ -1,0 +1,55 @@
+plugins {
+    id 'org.springframework.boot' version '2.2.0.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+    id 'java'
+}
+
+group = 'com.easter'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+apply plugin: 'maven-publish'
+
+configurations {
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    compile "io.springfox:springfox-swagger2:2.9.2"
+    compile 'io.springfox:springfox-swagger-ui:2.9.2'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+publishing {
+    //发布内容
+    publications {
+//        自命名"myPublish"为一个发布任务
+        myPublish(MavenPublication) {
+            //jar来源
+            from components.java
+        }
+    }
+    //配置仓库信息
+    repositories {
+        maven {
+            //库名称
+            name "myRepo"
+            url "远程库的url/"
+        }
+    }
+}
