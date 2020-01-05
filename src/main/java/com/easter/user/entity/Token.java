@@ -1,12 +1,14 @@
 package com.easter.user.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import java.time.LocalDateTime;
 
 @Data
@@ -14,6 +16,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Token {
+    @Id
+    @GeneratedValue(generator = "system-uuid")
+    @GenericGenerator(name = "system-uuid", strategy = "uuid2")
     private String id;
 
     private String userId;
@@ -24,7 +29,7 @@ public class Token {
     @Column(insertable = false, updatable = false)
     private LocalDateTime lastModifiedDate;
 
-    public Token(String userId){
+    public Token(String userId) {
         this.userId = userId;
     }
 }
