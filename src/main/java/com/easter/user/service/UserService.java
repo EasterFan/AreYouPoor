@@ -11,6 +11,7 @@ import com.easter.user.entity.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import sun.rmi.runtime.Log;
 
 import java.util.Optional;
 
@@ -33,8 +34,8 @@ public class UserService {
         return new RegisterResponse(user.getId(), token.getId());
     }
 
-    public LoginResponse login(LoginRequest loginRequest) throws Exception {
-        LoginResponse loginResponse = new LoginResponse();
+    public RegisterResponse login(LoginRequest loginRequest) throws Exception {
+        RegisterResponse loginResponse = new RegisterResponse();
         Optional<User> userOptional = userRepository.findByUsername(loginRequest.getUsername());
 
         if (userOptional.isPresent() && !userOptional.get().getPassword().equals(loginRequest.getPassword())) {
@@ -44,6 +45,7 @@ public class UserService {
         Optional<Token> tokenOptional = tokenRepository.findByUserId(userOptional.get().getId());
         if (tokenOptional.isPresent()) {
             loginResponse.setTokenId(tokenOptional.get().getId());
+            loginResponse.setUserId(tokenOptional.get().getUserId());
         } else {
             throw new Exception("token失效，请刷新重试");
         }

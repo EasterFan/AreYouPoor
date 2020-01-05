@@ -2,7 +2,6 @@ package com.easter.user.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Generated;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -22,7 +21,7 @@ public class User {
     private String username;
     private String password;
 
-    public User(String username,String password) {
+    public User(String username, String password) {
         this.username = username;
         this.password = password;
     }

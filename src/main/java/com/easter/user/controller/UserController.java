@@ -1,7 +1,6 @@
 package com.easter.user.controller;
 
 import com.easter.user.dto.LoginRequest;
-import com.easter.user.dto.LoginResponse;
 import com.easter.user.dto.RegisterRequest;
 import com.easter.user.dto.RegisterResponse;
 import com.easter.user.service.UserService;
@@ -26,8 +25,8 @@ public class UserController {
     }
 
     @GetMapping("/login")
-    @JsonView(LoginResponse.class)
-    public LoginResponse login(@RequestBody @Valid LoginRequest loginRequest) throws Exception {
+    @JsonView(RegisterResponse.ViewAll.class)
+    public RegisterResponse login(@RequestBody @Valid LoginRequest loginRequest) throws Exception {
         return userService.login(loginRequest);
     }
 
