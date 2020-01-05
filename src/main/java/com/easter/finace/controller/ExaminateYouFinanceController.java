@@ -3,6 +3,7 @@ package com.easter.finace.controller;
 import com.easter.finace.service.ExaminateYourFinanceService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,10 +15,10 @@ import java.text.NumberFormat;
 @Api("财务体检API")
 @RestController
 @RequestMapping("/examine")
-public class ExaminateYouFinanceApi {
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+public class ExaminateYouFinanceController {
 
-    @Autowired
-    ExaminateYourFinanceService examinateYourFinanceService;
+    private final ExaminateYourFinanceService examinateYourFinanceService;
 
     @ApiOperation(value = "检测应急能力")
     @PostMapping("/examineEmergencyAbility")

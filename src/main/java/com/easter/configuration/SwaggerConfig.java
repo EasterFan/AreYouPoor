@@ -14,6 +14,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 @Configuration
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
+
 public class SwaggerConfig {
     private final SwaggerInfo swaggerInfo;
 
