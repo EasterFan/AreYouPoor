@@ -24,7 +24,7 @@ public class UserController {
         return userService.register(registerRequest);
     }
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     @JsonView(RegisterResponse.ViewAll.class)
     public RegisterResponse login(@RequestBody @Valid LoginRequest loginRequest) throws Exception {
         return userService.login(loginRequest);
