@@ -3,6 +3,7 @@ package com.easter.finace.service;
 import com.easter.configuration.Constants;
 import com.easter.finace.dto.AssetsGrowthRequest;
 import com.easter.finace.dto.ExamResponse;
+import com.easter.finace.dto.ReporterResponse;
 import com.easter.finace.dto.SaveAbilityRequest;
 import com.easter.finace.entity.Finance;
 import com.easter.finace.entity.FinanceRepository;
@@ -34,11 +35,11 @@ public class ExaminateYourFinanceService {
             comment = Constants.DANGEROUS_EMERGENCY_STATUS;
         }
 
-        financeRepository.save(Finance.builder()
-                .comment(comment)
-                .userId(getUserIdByTokenId(tokenId))
-                .EmergencyAbility(String.valueOf(percent))
-                .build());
+        Finance finance = financeRepository.findByUserId(getUserIdByTokenId(tokenId)).orElseGet(Finance::new);
+        finance.setUserId(getUserIdByTokenId(tokenId));
+        finance.setEmergencyAbility(String.valueOf(percent));
+
+        financeRepository.save(finance);
 
         return ExamResponse.builder()
                 .comment(comment)
@@ -48,7 +49,7 @@ public class ExaminateYourFinanceService {
 
     public ExamResponse calculateSavingAbilityAndSaveInfo(SaveAbilityRequest saveAbilityRequest) throws ChangeSetPersister.NotFoundException {
         String comment = "";
-        float percent = getPercent(saveAbilityRequest.getMonthlySaving(), saveAbilityRequest.getMonthlySalary());
+        float percent = getPercent(saveAbilityRequest.getMonthlySalary(), saveAbilityRequest.getMonthlySaving());
 
         if (percent >= 8 && percent <= 30) {
             comment = Constants.VERY_GOOD_SAVING_ABILITY_STATUS;
@@ -69,19 +70,23 @@ public class ExaminateYourFinanceService {
                 .build();
     }
 
-    public ExamResponse calculateAssetsGrowthAbility(AssetsGrowthRequest assetsGrowthRequest) {
+    public ExamResponse calculateAssetsGrowthAbility(AssetsGrowthRequest assetsGrowthRequest) throws ChangeSetPersister.NotFoundException {
         String comment = "";
         float percent = getPercent(assetsGrowthRequest.getTotalAsset(), assetsGrowthRequest.getInvestAsset());
 
-        if (percent >= 50 ) {
+        if (percent >= 50) {
             comment = Constants.DANGEROUS_ASSETS_GROWTH_ABILITY;
         } else {
             comment = Constants.GOOD_ASSETS_GROWTH_ABILITY;
         }
 
-        financeRepository.save(Finance.builder().comment(comment).build());
+        Finance finance = financeRepository.findByUserId(getUserIdByTokenId(assetsGrowthRequest.getTokenId())).orElseGet(Finance::new);
+        finance.setUserId(getUserIdByTokenId(assetsGrowthRequest.getTokenId()));
+        finance.setAssetsGrowthAbility(String.valueOf(percent));
 
-        return  ExamResponse.builder()
+        financeRepository.save(finance);
+
+        return ExamResponse.builder()
                 .percent(String.valueOf(100 - percent))
                 .comment(comment)
                 .build();
@@ -142,5 +147,16 @@ public class ExaminateYourFinanceService {
                 e.printStackTrace();
             }
         }
+    }
+
+    public ReporterResponse getMyReporter(String tokenId) throws ChangeSetPersister.NotFoundException {
+        Finance finance = financeRepository.findByUserId(getUserIdByTokenId(tokenId)).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        return ReporterResponse.builder()
+                .emergencyAbility(finance.getEmergencyAbility())
+                .savingAbility(finance.getSavingAbility())
+                .assetGrowthAbility(finance.getAssetsGrowthAbility())
+                .totalAbility(finance.getTotalAbility())
+                .comment(finance.getComment())
+                .build();
     }
 }

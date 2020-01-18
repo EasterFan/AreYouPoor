@@ -1,7 +1,6 @@
 package com.easter.user.service;
 
 import com.easter.user.dto.LoginRequest;
-import com.easter.user.dto.LoginResponse;
 import com.easter.user.dto.RegisterRequest;
 import com.easter.user.dto.RegisterResponse;
 import com.easter.user.entity.Token;
@@ -11,7 +10,6 @@ import com.easter.user.entity.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import sun.rmi.runtime.Log;
 
 import java.util.Optional;
 

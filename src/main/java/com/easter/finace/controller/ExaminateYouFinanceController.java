@@ -1,9 +1,6 @@
 package com.easter.finace.controller;
 
-import com.easter.finace.dto.AssetsGrowthRequest;
-import com.easter.finace.dto.DebtAbilityRequest;
-import com.easter.finace.dto.ExamResponse;
-import com.easter.finace.dto.SaveAbilityRequest;
+import com.easter.finace.dto.*;
 import com.easter.finace.service.ExaminateYourFinanceService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -33,6 +30,35 @@ public class ExaminateYouFinanceController {
         return examinateYourFinanceService.calculateEmergencyAbilityDebtAndSaveInfo(liquidAsset, dailyNecessaryExpenses, tokenId);
     }
 
+    @ApiOperation(value = "检测储蓄能力")
+    @GetMapping("/saving-ability")
+    public ExamResponse examineSavingAbility(SaveAbilityRequest saveAbilityRequest) throws ChangeSetPersister.NotFoundException {
+        examinateYourFinanceService.verifyIdentity(saveAbilityRequest.getTokenId());
+        examinateYourFinanceService.checkMoney(saveAbilityRequest.getMonthlySaving(), saveAbilityRequest.getMonthlySalary());
+
+        return examinateYourFinanceService.calculateSavingAbilityAndSaveInfo(saveAbilityRequest);
+    }
+
+    @ApiOperation(value = "检测资产生息能力")
+    @GetMapping("/interest-bearing-assets-ability")
+    public ExamResponse examineAssetsGrowthAbility(AssetsGrowthRequest assetsGrowthRequest) throws ChangeSetPersister.NotFoundException {
+        examinateYourFinanceService.verifyIdentity(assetsGrowthRequest.getTokenId());
+        examinateYourFinanceService.checkMoney(assetsGrowthRequest.getTotalAsset(), assetsGrowthRequest.getInvestAsset());
+
+        return examinateYourFinanceService.calculateAssetsGrowthAbility(assetsGrowthRequest);
+    }
+
+    @ApiOperation(value = "获取我的体检报告")
+    @GetMapping("/reporter")
+    public ReporterResponse examineAssetsGrowthAbility(@RequestParam String tokenId) throws ChangeSetPersister.NotFoundException {
+        examinateYourFinanceService.verifyIdentity(tokenId);
+        return examinateYourFinanceService.getMyReporter(tokenId);
+    }
+
+
+
+
+
     @ApiOperation(value = "检测偿债能力")
     @PostMapping("/examineDebtAbility")
     public String examineDebtAbility(@RequestBody DebtAbilityRequest debtAbilityRequest) {
@@ -55,23 +81,5 @@ public class ExaminateYouFinanceController {
 //                result = examinateYourFinanceService.debtRate(debtRate);
 //        }
         return result;
-    }
-
-    @ApiOperation(value = "检测储蓄能力")
-    @GetMapping("/saving-ability")
-    public ExamResponse examineSavingAbility(SaveAbilityRequest saveAbilityRequest) throws ChangeSetPersister.NotFoundException {
-        examinateYourFinanceService.verifyIdentity(saveAbilityRequest.getTokenId());
-        examinateYourFinanceService.checkMoney(saveAbilityRequest.getMonthlySaving(), saveAbilityRequest.getMonthlySalary());
-
-        return examinateYourFinanceService.calculateSavingAbilityAndSaveInfo(saveAbilityRequest);
-    }
-
-    @ApiOperation(value = "检测资产生息能力")
-    @GetMapping("/interest-bearing-assets-ability")
-    public ExamResponse examineAssetsGrowthAbility(AssetsGrowthRequest assetsGrowthRequest) {
-        examinateYourFinanceService.verifyIdentity(assetsGrowthRequest.getTokenId());
-        examinateYourFinanceService.checkMoney(assetsGrowthRequest.getTotalAsset(), assetsGrowthRequest.getInvestAsset());
-
-        return examinateYourFinanceService.calculateAssetsGrowthAbility(assetsGrowthRequest);
     }
 }

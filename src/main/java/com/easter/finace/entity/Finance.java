@@ -30,6 +30,8 @@ public class Finance {
     private String monthlyDebt;
     private String debtRate;
     private String comment;
+    private String assetsGrowthAbility;
+    private String totalAbility;
 
     @Column(insertable = false, updatable = false)
     private LocalDateTime createdDate;
