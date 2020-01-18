@@ -24,13 +24,13 @@ public class ExaminateYouFinanceController {
     private final ExaminateYourFinanceService examinateYourFinanceService;
 
     @ApiOperation(value = "检测应急能力")
-    @PostMapping("/examineEmergencyAbility")
+    @GetMapping("/emergency-ability")
     public ExamResponse examineEmergencyAbility(@RequestParam @Min(0) @Max(10000000) Integer liquidAsset,
-                                                @Min(0) @Max(10000000) Integer dailyNecessaryExpenses,
-                                                String tokenId) throws ChangeSetPersister.NotFoundException {
+                                                @RequestParam @Min(0) @Max(10000000) Integer dailyNecessaryExpenses,
+                                                @RequestParam String tokenId) throws ChangeSetPersister.NotFoundException {
         examinateYourFinanceService.verifyIdentity(tokenId);
         examinateYourFinanceService.checkMoney(liquidAsset, dailyNecessaryExpenses);
-        return examinateYourFinanceService.CalculateEmergencyAbilityDebtAndSaveInfo(liquidAsset, dailyNecessaryExpenses , tokenId);
+        return examinateYourFinanceService.CalculateEmergencyAbilityDebtAndSaveInfo(liquidAsset, dailyNecessaryExpenses, tokenId);
     }
 
     @ApiOperation(value = "检测偿债能力")
@@ -59,10 +59,9 @@ public class ExaminateYouFinanceController {
 
     @ApiOperation(value = "检测储蓄能力")
     @PostMapping("/examineSavingAbility")
-    public String examineSavingAbility2(@RequestBody SaveAbilityRequest saveAbilityRequest) {
+    public ExamResponse examineSavingAbility2(@RequestBody SaveAbilityRequest saveAbilityRequest) throws ChangeSetPersister.NotFoundException {
         examinateYourFinanceService.verifyIdentity(saveAbilityRequest.getTokenId());
         examinateYourFinanceService.checkMoney(saveAbilityRequest.getMonthlySaving(), saveAbilityRequest.getMonthlySalary());
-
 
 
         return examinateYourFinanceService.CalculateSavingAbilityAndSaveInfo(saveAbilityRequest);

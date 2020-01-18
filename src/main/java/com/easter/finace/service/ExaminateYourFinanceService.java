@@ -25,7 +25,7 @@ public class ExaminateYourFinanceService {
         float percent = getPercent(liquidAsset, dailyNecessaryExpenses);
         String comment = "";
 
-        if (percent > 0 && percent <= 30) {
+        if (percent <= 30) {
             comment = Constants.VERY_GOOD_EMERGENCY_STATUS;
         } else if (percent > 30 && percent < 80) {
             comment = Constants.GOOD_EMERGENCY_STATUS;
