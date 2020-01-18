@@ -30,7 +30,7 @@ public class ExaminateYouFinanceController {
                                                 @RequestParam String tokenId) throws ChangeSetPersister.NotFoundException {
         examinateYourFinanceService.verifyIdentity(tokenId);
         examinateYourFinanceService.checkMoney(liquidAsset, dailyNecessaryExpenses);
-        return examinateYourFinanceService.CalculateEmergencyAbilityDebtAndSaveInfo(liquidAsset, dailyNecessaryExpenses, tokenId);
+        return examinateYourFinanceService.calculateEmergencyAbilityDebtAndSaveInfo(liquidAsset, dailyNecessaryExpenses, tokenId);
     }
 
     @ApiOperation(value = "检测偿债能力")
@@ -58,18 +58,17 @@ public class ExaminateYouFinanceController {
     }
 
     @ApiOperation(value = "检测储蓄能力")
-    @PostMapping("/examineSavingAbility")
-    public ExamResponse examineSavingAbility2(@RequestBody SaveAbilityRequest saveAbilityRequest) throws ChangeSetPersister.NotFoundException {
+    @GetMapping("/saving-ability")
+    public ExamResponse examineSavingAbility(SaveAbilityRequest saveAbilityRequest) throws ChangeSetPersister.NotFoundException {
         examinateYourFinanceService.verifyIdentity(saveAbilityRequest.getTokenId());
         examinateYourFinanceService.checkMoney(saveAbilityRequest.getMonthlySaving(), saveAbilityRequest.getMonthlySalary());
 
-
-        return examinateYourFinanceService.CalculateSavingAbilityAndSaveInfo(saveAbilityRequest);
+        return examinateYourFinanceService.calculateSavingAbilityAndSaveInfo(saveAbilityRequest);
     }
 
     @ApiOperation(value = "检测资产生息能力")
-    @PostMapping("/examineInterestBearingAssetsAbility")
-    public String examineSavingAbility(Integer investAsset, Integer totalAsset) {
+    @GetMapping("/interest-bearing-assets-ability")
+    public String examineAssetsGrowthAbility(Integer investAsset, Integer totalAsset) {
         String result = "";
 
         NumberFormat numberFormat = NumberFormat.getInstance();
@@ -83,7 +82,6 @@ public class ExaminateYouFinanceController {
         } else {
             result = "投资比例偏高";
         }
-
         return result;
     }
 }

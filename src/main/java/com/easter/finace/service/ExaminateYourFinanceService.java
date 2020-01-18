@@ -21,7 +21,7 @@ public class ExaminateYourFinanceService {
     private final TokenRepository tokenRepository;
 
 
-    public ExamResponse CalculateEmergencyAbilityDebtAndSaveInfo(Integer liquidAsset, Integer dailyNecessaryExpenses, String tokenId) throws ChangeSetPersister.NotFoundException {
+    public ExamResponse calculateEmergencyAbilityDebtAndSaveInfo(Integer liquidAsset, Integer dailyNecessaryExpenses, String tokenId) throws ChangeSetPersister.NotFoundException {
         float percent = getPercent(liquidAsset, dailyNecessaryExpenses);
         String comment = "";
 
@@ -41,21 +41,20 @@ public class ExaminateYourFinanceService {
 
         return ExamResponse.builder()
                 .comment(comment)
-                .percent(String.valueOf(100.00 - percent))
+                .percent(String.valueOf(100 - percent))
                 .build();
     }
 
-    public ExamResponse CalculateSavingAbilityAndSaveInfo(SaveAbilityRequest saveAbilityRequest) throws ChangeSetPersister.NotFoundException {
+    public ExamResponse calculateSavingAbilityAndSaveInfo(SaveAbilityRequest saveAbilityRequest) throws ChangeSetPersister.NotFoundException {
         String comment = "";
         float percent = getPercent(saveAbilityRequest.getMonthlySaving(), saveAbilityRequest.getMonthlySalary());
 
-
         if (percent >= 8 && percent <= 30) {
-            comment = "合理的储蓄，继续保持！";
+            comment = Constants.VERY_GOOD_SAVING_ABILITY_STATUS;
         } else if (percent < 8) {
-            comment = "危险!需要适量增加储蓄比例⚠️";
+            comment = Constants.A_LITTLE_DANGEROUS_SAVING_ABILITY_STATUS;
         } else {
-            comment = "储蓄比例偏高，可考虑适当消费或投资！";
+            comment = Constants.OVER_GOOD_ENOUGH_SAVING_ABILITY_STATUS;
         }
 
         Finance finance = financeRepository.findByUserId(getUserIdByTokenId(saveAbilityRequest.getTokenId())).orElseGet(Finance::new);
@@ -64,10 +63,9 @@ public class ExaminateYourFinanceService {
         financeRepository.save(finance);
 
         return ExamResponse.builder()
-                .percent(String.valueOf(100.00 - percent))
+                .percent(String.valueOf(100 - percent))
                 .comment(comment)
                 .build();
-
     }
 
     private float getPercent(Integer liquidAsset, Integer dailyNecessaryExpenses) {
