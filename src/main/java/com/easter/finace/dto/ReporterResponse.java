@@ -15,13 +15,13 @@ public class ReporterResponse implements Serializable {
     private static final long serialVersionUID = -6268136269090872884L;
 
     @JsonView(ExamResponse.ViewAll.class)
-    private String emergencyAbility;
+    private Float emergencyAbility;
 
     @JsonView(ExamResponse.ViewAll.class)
-    private String savingAbility;
+    private Float savingAbility;
 
     @JsonView(ExamResponse.ViewAll.class)
-    private String assetGrowthAbility;
+    private Float assetGrowthAbility;
 
     @JsonView(ExamResponse.ViewAll.class)
     private String totalAbility;

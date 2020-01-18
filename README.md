@@ -38,3 +38,11 @@ http://localhost:8080/swagger-ui.html
 投资资产：能带来利息的东西（余额宝 / 基金 / 股票 / 第二套房）
 总资产：动产 / 不动产 所有属于你的东西
 ![](src/main/resources/static/assets.png) 
+
+
+# Technical Stack
+backend:
+- springboot (JPA)
+- database : (mysql + flyway + docker)
+- git
+- Restful

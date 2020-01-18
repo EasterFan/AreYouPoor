@@ -50,13 +50,10 @@ public class ExaminateYouFinanceController {
 
     @ApiOperation(value = "获取我的体检报告")
     @GetMapping("/reporter")
-    public ReporterResponse examineAssetsGrowthAbility(@RequestParam String tokenId) throws ChangeSetPersister.NotFoundException {
+    public ReporterResponse examineAssetsGrowthAbility(@RequestParam String tokenId) throws Exception {
         examinateYourFinanceService.verifyIdentity(tokenId);
         return examinateYourFinanceService.getMyReporter(tokenId);
     }
-
-
-
 
 
     @ApiOperation(value = "检测偿债能力")

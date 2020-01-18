@@ -14,7 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -149,14 +152,43 @@ public class ExaminateYourFinanceService {
         }
     }
 
-    public ReporterResponse getMyReporter(String tokenId) throws ChangeSetPersister.NotFoundException {
+    public ReporterResponse getMyReporter(String tokenId) throws Exception {
         Finance finance = financeRepository.findByUserId(getUserIdByTokenId(tokenId)).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        if (Stream.of(finance.getEmergencyAbility(), finance.getAssetsGrowthAbility(), finance.getSavingAbility()).anyMatch(Objects::isNull))
+            throw new Exception("信息不全，无法生成报告！");
+
+        Finance newFinance = calculateFinanceStatus(finance);
+
         return ReporterResponse.builder()
-                .emergencyAbility(finance.getEmergencyAbility())
-                .savingAbility(finance.getSavingAbility())
-                .assetGrowthAbility(finance.getAssetsGrowthAbility())
-                .totalAbility(finance.getTotalAbility())
-                .comment(finance.getComment())
+                .emergencyAbility(100 - Float.parseFloat(newFinance.getEmergencyAbility()))
+                .savingAbility(100 - Float.parseFloat(newFinance.getSavingAbility()))
+                .assetGrowthAbility(100 - Float.parseFloat(newFinance.getAssetsGrowthAbility()))
+                .totalAbility(newFinance.getTotalAbility())
+                .comment(newFinance.getComment())
                 .build();
+    }
+
+    private Finance calculateFinanceStatus(Finance finance) {
+        String comment = "";
+        NumberFormat numberFormat = NumberFormat.getInstance();
+        numberFormat.setMaximumFractionDigits(2);
+
+        double totalAbility = Double.parseDouble(numberFormat.format((Float.parseFloat(finance.getEmergencyAbility()) * 0.5
+                + Float.parseFloat(finance.getSavingAbility()) * 0.3
+                + Float.parseFloat(finance.getAssetsGrowthAbility()) * 0.2) / 3));
+
+        if (totalAbility <= 10) {
+            comment = Constants.DANGEROUS_TOTAL_ABILITY;
+        } else if (totalAbility <= 1){
+            comment = Constants.GOOD_TOTAL_ABILITY;
+        }else {
+            comment = Constants.NOT_BAD_TOTAL_ABILITY;
+        }
+
+        finance.setTotalAbility(String.valueOf(totalAbility));
+        finance.setComment(comment);
+
+
+        return financeRepository.save(finance);
     }
 }
