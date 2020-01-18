@@ -2,10 +2,12 @@ package com.easter.finace.service;
 
 import com.easter.configuration.Constants;
 import com.easter.finace.dto.ExamResponse;
+import com.easter.finace.dto.SaveAbilityRequest;
 import com.easter.finace.entity.Finance;
 import com.easter.finace.entity.FinanceRepository;
 import com.easter.user.entity.Token;
 import com.easter.user.entity.TokenRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
@@ -13,18 +15,14 @@ import org.springframework.stereotype.Service;
 import java.text.NumberFormat;
 
 @Service
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ExaminateYourFinanceService {
-    @Autowired
-    FinanceRepository financeRepository;
-
-    @Autowired
-    TokenRepository tokenRepository;
+    private final FinanceRepository financeRepository;
+    private final TokenRepository tokenRepository;
 
 
     public ExamResponse CalculateEmergencyAbilityDebtAndSaveInfo(Integer liquidAsset, Integer dailyNecessaryExpenses, String tokenId) throws ChangeSetPersister.NotFoundException {
         float percent = getPercent(liquidAsset, dailyNecessaryExpenses);
-        Finance finance = new Finance();
-        ExamResponse examResponse = new ExamResponse();
         String comment = "";
 
         if (percent > 0 && percent <= 30) {
@@ -35,16 +33,41 @@ public class ExaminateYourFinanceService {
             comment = Constants.DANGEROUS_EMERGENCY_STATUS;
         }
 
+        financeRepository.save(Finance.builder()
+                .comment(comment)
+                .userId(getUserIdByTokenId(tokenId))
+                .EmergencyAbility(String.valueOf(percent))
+                .build());
 
-        finance.setComment(comment);
-        finance.setEmergencyAbility(String.valueOf(percent));
-        finance.setUserId(getUserIdByTokenId(tokenId));
+        return ExamResponse.builder()
+                .comment(comment)
+                .percent(String.valueOf(100.00 - percent))
+                .build();
+    }
 
-        examResponse.setComment(comment);
-        examResponse.setPercent(String.valueOf(percent));
+    public ExamResponse CalculateSavingAbilityAndSaveInfo(SaveAbilityRequest saveAbilityRequest) throws ChangeSetPersister.NotFoundException {
+        String comment = "";
+        float percent = getPercent(saveAbilityRequest.getMonthlySaving(), saveAbilityRequest.getMonthlySalary());
 
+
+        if (percent >= 8 && percent <= 30) {
+            comment = "合理的储蓄，继续保持！";
+        } else if (percent < 8) {
+            comment = "危险!需要适量增加储蓄比例⚠️";
+        } else {
+            comment = "储蓄比例偏高，可考虑适当消费或投资！";
+        }
+
+        Finance finance = financeRepository.findByUserId(getUserIdByTokenId(saveAbilityRequest.getTokenId())).orElseGet(Finance::new);
+        finance.setUserId(getUserIdByTokenId(saveAbilityRequest.getTokenId()));
+        finance.setSavingAbility(String.valueOf(percent));
         financeRepository.save(finance);
-        return examResponse;
+
+        return ExamResponse.builder()
+                .percent(String.valueOf(100.00 - percent))
+                .comment(comment)
+                .build();
+
     }
 
     private float getPercent(Integer liquidAsset, Integer dailyNecessaryExpenses) {
@@ -95,7 +118,7 @@ public class ExaminateYourFinanceService {
     }
 
     public void checkMoney(Integer bigMoney, Integer smallMoney) {
-        if (bigMoney - smallMoney < 0) {
+        if (bigMoney - smallMoney < 0 || bigMoney < 0 || smallMoney < 0) {
             try {
                 throw new Exception("请输入合法金钱数！");
             } catch (Exception e) {
@@ -103,5 +126,4 @@ public class ExaminateYourFinanceService {
             }
         }
     }
-
 }

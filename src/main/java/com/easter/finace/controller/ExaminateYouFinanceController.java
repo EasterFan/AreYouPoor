@@ -1,6 +1,8 @@
 package com.easter.finace.controller;
 
+import com.easter.finace.dto.DebtAbilityRequest;
 import com.easter.finace.dto.ExamResponse;
+import com.easter.finace.dto.SaveAbilityRequest;
 import com.easter.finace.service.ExaminateYourFinanceService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -32,43 +34,38 @@ public class ExaminateYouFinanceController {
     }
 
     @ApiOperation(value = "检测偿债能力")
-    @PostMapping("/examineDebtAbility/{debtType}")
-    public String examineDebtAbility(@PathVariable String debtType, Integer liquidAsset, Integer shortTermLiability, Float debtRate) {
+    @PostMapping("/examineDebtAbility")
+    public String examineDebtAbility(@RequestBody DebtAbilityRequest debtAbilityRequest) {
+        examinateYourFinanceService.verifyIdentity(debtAbilityRequest.getTokenId());
+        examinateYourFinanceService.checkMoney(debtAbilityRequest.getLiquidAsset(), debtAbilityRequest.getShortTermLiability());
+
         String result = "";
 
-        switch (debtType) {
-            case "shortTerm":
-                result = examinateYourFinanceService.ShortTermDebt(liquidAsset, shortTermLiability);
-                return result;
-            case "longTermDebt":
-                result = examinateYourFinanceService.longTermDebt(liquidAsset, shortTermLiability);
-                return result;
-            case "monthlyDebt":
-                result = examinateYourFinanceService.monthlyDebt(liquidAsset, shortTermLiability);
-                return result;
-            case "debtRate":
-                result = examinateYourFinanceService.debtRate(debtRate);
-        }
+//        switch (debtAbilityRequest.getDebtType()) {
+//            case "shortTerm":
+//                result = examinateYourFinanceService.ShortTermDebt(liquidAsset, shortTermLiability);
+//                return result;
+//            case "longTermDebt":
+//                result = examinateYourFinanceService.longTermDebt(liquidAsset, shortTermLiability);
+//                return result;
+//            case "monthlyDebt":
+//                result = examinateYourFinanceService.monthlyDebt(liquidAsset, shortTermLiability);
+//                return result;
+//            case "debtRate":
+//                result = examinateYourFinanceService.debtRate(debtRate);
+//        }
         return result;
     }
 
     @ApiOperation(value = "检测储蓄能力")
     @PostMapping("/examineSavingAbility")
-    public String examineSavingAbility2(Integer monthlySaving, Integer monthlySalary) {
-        String result = "";
-        NumberFormat numberFormat = NumberFormat.getInstance();
-        numberFormat.setMaximumFractionDigits(2);
-        float percent = Float.parseFloat(numberFormat.format((float) monthlySalary / (float) monthlySaving));
+    public String examineSavingAbility2(@RequestBody SaveAbilityRequest saveAbilityRequest) {
+        examinateYourFinanceService.verifyIdentity(saveAbilityRequest.getTokenId());
+        examinateYourFinanceService.checkMoney(saveAbilityRequest.getMonthlySaving(), saveAbilityRequest.getMonthlySalary());
 
-        if (percent >= 1.5 && percent <= 3) {
-            result = "合理的储蓄，继续保持！";
-        } else if (percent < 1.5) {
-            result = "危险!需要适量增加储蓄比例⚠️";
-        } else {
-            result = "储蓄比例偏高，可考虑适当消费或投资！";
-        }
 
-        return result;
+
+        return examinateYourFinanceService.CalculateSavingAbilityAndSaveInfo(saveAbilityRequest);
     }
 
     @ApiOperation(value = "检测资产生息能力")

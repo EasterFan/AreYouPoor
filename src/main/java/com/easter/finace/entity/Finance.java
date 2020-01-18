@@ -1,6 +1,7 @@
 package com.easter.finace.entity;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Finance {
     @Id
     @GeneratedValue(generator = "system-uuid")
@@ -22,6 +24,7 @@ public class Finance {
     private String id;
     private String userId;
     private String EmergencyAbility;
+    private String savingAbility;
     private String shortTermDebt;
     private String LongTermDebt;
     private String monthlyDebt;
