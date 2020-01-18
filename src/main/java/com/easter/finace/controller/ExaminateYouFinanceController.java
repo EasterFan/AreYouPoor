@@ -1,5 +1,6 @@
 package com.easter.finace.controller;
 
+import com.easter.finace.dto.AssetsGrowthRequest;
 import com.easter.finace.dto.DebtAbilityRequest;
 import com.easter.finace.dto.ExamResponse;
 import com.easter.finace.dto.SaveAbilityRequest;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import java.text.NumberFormat;
 
 @Api("财务体检API")
 @RestController
@@ -68,20 +68,10 @@ public class ExaminateYouFinanceController {
 
     @ApiOperation(value = "检测资产生息能力")
     @GetMapping("/interest-bearing-assets-ability")
-    public String examineAssetsGrowthAbility(Integer investAsset, Integer totalAsset) {
-        String result = "";
+    public ExamResponse examineAssetsGrowthAbility(AssetsGrowthRequest assetsGrowthRequest) {
+        examinateYourFinanceService.verifyIdentity(assetsGrowthRequest.getTokenId());
+        examinateYourFinanceService.checkMoney(assetsGrowthRequest.getTotalAsset(), assetsGrowthRequest.getInvestAsset());
 
-        NumberFormat numberFormat = NumberFormat.getInstance();
-        numberFormat.setMaximumFractionDigits(2);
-        float percent = Float.parseFloat(numberFormat.format((float) investAsset / (float) totalAsset));
-
-        if (percent >= 0.4 && percent <= 0.6) {
-            result = "合理的资产生息比例，继续保持！";
-        } else if (percent < 0.4) {
-            result = "投资比例偏低";
-        } else {
-            result = "投资比例偏高";
-        }
-        return result;
+        return examinateYourFinanceService.calculateAssetsGrowthAbility(assetsGrowthRequest);
     }
 }

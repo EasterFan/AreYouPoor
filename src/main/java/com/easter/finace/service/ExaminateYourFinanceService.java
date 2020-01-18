@@ -1,6 +1,7 @@
 package com.easter.finace.service;
 
 import com.easter.configuration.Constants;
+import com.easter.finace.dto.AssetsGrowthRequest;
 import com.easter.finace.dto.ExamResponse;
 import com.easter.finace.dto.SaveAbilityRequest;
 import com.easter.finace.entity.Finance;
@@ -63,6 +64,24 @@ public class ExaminateYourFinanceService {
         financeRepository.save(finance);
 
         return ExamResponse.builder()
+                .percent(String.valueOf(100 - percent))
+                .comment(comment)
+                .build();
+    }
+
+    public ExamResponse calculateAssetsGrowthAbility(AssetsGrowthRequest assetsGrowthRequest) {
+        String comment = "";
+        float percent = getPercent(assetsGrowthRequest.getTotalAsset(), assetsGrowthRequest.getInvestAsset());
+
+        if (percent >= 50 ) {
+            comment = Constants.DANGEROUS_ASSETS_GROWTH_ABILITY;
+        } else {
+            comment = Constants.GOOD_ASSETS_GROWTH_ABILITY;
+        }
+
+        financeRepository.save(Finance.builder().comment(comment).build());
+
+        return  ExamResponse.builder()
                 .percent(String.valueOf(100 - percent))
                 .comment(comment)
                 .build();
